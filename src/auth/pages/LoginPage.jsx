@@ -1,5 +1,7 @@
-import { useForm } from "../../hooks";
+import { useEffect } from "react";
+import { useAuthStore, useForm } from "../../hooks";
 import "./LoginPage.css";
+import Swal from "sweetalert2";
 
 const loginFormFields = {
   loginEmail: "",
@@ -26,18 +28,31 @@ export const LoginPage = () => {
     onInputChange: onRegisterInputChange,
   } = useForm(registerFormFields);
 
+  const { startLogin,startRegister, errorMessage } = useAuthStore();
+
   const loginSubmit = (event) => {
     event.preventDefault();
+    startLogin({ email: loginEmail, password: loginPassword });
   };
 
   const registerSubmit = (event) => {
     event.preventDefault();
 
-    if (registerPassword !== registerPassword2) return;
+    if (registerPassword !== registerPassword2)
+      return Swal.fire("Los passwords no son iguales", errorMessage, "error");
 
-    
-
+    startRegister({
+      email: registerEmail,
+      password: registerPassword,
+      name: registerName,
+    });
   };
+
+  useEffect(() => {
+    if (errorMessage) {
+      Swal.fire("Error al iniciar sesion", errorMessage, "error");
+    }
+  }, [errorMessage]);
 
   return (
     <div className="container login-container">
